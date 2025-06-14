@@ -1,0 +1,8 @@
+
+services:
+  - type: cron
+    name: maccabi-tlv-scraper
+    schedule: "*/5 * * * *"
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python main.py"
