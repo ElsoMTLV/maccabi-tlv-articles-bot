@@ -1,5 +1,5 @@
 
-from sources import walla, sport5, israelhayom, ynet, one
+from sources import walla, sport5, israelhayom, ynet
 from telegram import send_article
 import json, os
 
@@ -14,7 +14,7 @@ except:
     sent = set()
 
 all_articles = []
-for scraper in [walla, sport5, israelhayom, ynet, one]:
+for scraper in [walla, sport5, israelhayom, ynet]:
     all_articles.extend(scraper.get_articles())
 
 new_articles = [a for a in all_articles if a['url'] not in sent]
