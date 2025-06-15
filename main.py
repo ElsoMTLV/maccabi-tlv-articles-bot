@@ -24,16 +24,26 @@ for scraper in [walla, sport5, israelhayom, ynet]:
     except Exception as e:
         print(f"Error with {scraper.__name__}: {e}")
 
+# Debug: Show all collected articles
+print(f"🔍 Total articles collected: {len(all_articles)}")
+
 # Filter new articles
 new_articles = [a for a in all_articles if a["url"] not in sent_urls]
 
+# Debug: Show filtered count
+print(f"🆕 New articles to send: {len(new_articles)}")
+
 # Send new articles
 for article in new_articles:
-    send_article(BOT_TOKEN, CHAT_ID, article)
-    sent_urls.add(article["url"])
+    try:
+        send_article(BOT_TOKEN, CHAT_ID, article)
+        print(f"✅ Sent: {article['title']}")
+        sent_urls.add(article["url"])
+    except Exception as e:
+        print(f"❌ Failed to send: {article['title']}\nError: {e}")
 
 # Save updated list of sent URLs
 with open(SENT_FILE, "w") as f:
     json.dump(list(sent_urls), f)
 
-print(f"✅ Sent {len(new_articles)} new articles")
+print(f"📤 Done. Sent {len(new_articles)} new articles.")
