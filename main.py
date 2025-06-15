@@ -4,23 +4,32 @@ from sources import walla, sport5, israelhayom, ynet, one
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
+SENT_FILE = "sent_articles.txt"
 
-if not BOT_TOKEN or not CHAT_ID:
-    print("Missing BOT_TOKEN or CHAT_ID")
-    exit(1)
+# Load previously sent URLs
+if os.path.exists(SENT_FILE):
+    with open(SENT_FILE, "r", encoding="utf-8") as f:
+        sent_urls = set(line.strip() for line in f)
+else:
+    sent_urls = set()
 
 all_articles = []
-
 for scraper in [walla, sport5, israelhayom, ynet, one]:
     try:
-        articles = scraper.get_articles()
-        print(f"{scraper.__name__} returned {len(articles)} articles")
-        all_articles.extend(articles)
+        all_articles.extend(scraper.get_articles())
     except Exception as e:
-        print(f"Error scraping {scraper.__name__}: {e}")
+        print(f"Error with {scraper.__name__}: {e}")
 
-print(f"Total articles found: {len(all_articles)}")
-
+new_sent = 0
 for article in all_articles:
-    print("Sending article:", article['title'])
-    send_article(BOT_TOKEN, CHAT_ID, article)
+    if article['url'] not in sent_urls:
+        send_article(BOT_TOKEN, CHAT_ID, article)
+        sent_urls.add(article['url'])
+        new_sent += 1
+
+# Save updated list
+with open(SENT_FILE, "w", encoding="utf-8") as f:
+    for url in sent_urls:
+        f.write(url + "\n")
+
+print(f"✅ Sent {new_sent} new articles")
