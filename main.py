@@ -1,12 +1,18 @@
 import json
 import os
 from sources import walla, sport5, israelhayom, ynet
-from utils import normalize_url, send_article
+from telegram import send_article
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 CHAT_ID = os.environ.get("CHAT_ID")
 
 SENT_FILE = "sent.json"
+
+def normalize_url(url):
+    """Normalize URL by removing query parameters, fragments, etc."""
+    from urllib.parse import urlparse, urlunparse
+    parsed = urlparse(url)
+    return urlunparse((parsed.scheme, parsed.netloc, parsed.path, '', '', ''))
 
 def load_sent_urls():
     if os.path.exists(SENT_FILE):
