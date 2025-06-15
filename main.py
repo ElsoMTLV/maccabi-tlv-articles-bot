@@ -18,7 +18,9 @@ else:
 all_articles = []
 for scraper in [walla, sport5, israelhayom, ynet]:
     try:
-        all_articles.extend(scraper.get_articles())
+        articles = scraper.get_articles()
+        print(f"{scraper.__name__}: {len(articles)} articles found")
+        all_articles.extend(articles)
     except Exception as e:
         print(f"Error with {scraper.__name__}: {e}")
 
