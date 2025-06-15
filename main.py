@@ -1,18 +1,20 @@
 import os
+import json
 from telegram import send_article
 from sources import walla, sport5, israelhayom, ynet, one
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-SENT_FILE = "sent_articles.txt"
 
 # Load previously sent URLs
+SENT_FILE = "sent.json"
 if os.path.exists(SENT_FILE):
-    with open(SENT_FILE, "r", encoding="utf-8") as f:
-        sent_urls = set(line.strip() for line in f)
+    with open(SENT_FILE, "r") as f:
+        sent_urls = set(json.load(f))
 else:
     sent_urls = set()
 
+# Scrape all sources
 all_articles = []
 for scraper in [walla, sport5, israelhayom, ynet, one]:
     try:
@@ -20,16 +22,16 @@ for scraper in [walla, sport5, israelhayom, ynet, one]:
     except Exception as e:
         print(f"Error with {scraper.__name__}: {e}")
 
-new_sent = 0
-for article in all_articles:
-    if article['url'] not in sent_urls:
-        send_article(BOT_TOKEN, CHAT_ID, article)
-        sent_urls.add(article['url'])
-        new_sent += 1
+# Filter new articles
+new_articles = [a for a in all_articles if a["url"] not in sent_urls]
 
-# Save updated list
-with open(SENT_FILE, "w", encoding="utf-8") as f:
-    for url in sent_urls:
-        f.write(url + "\n")
+# Send new articles
+for article in new_articles:
+    send_article(BOT_TOKEN, CHAT_ID, article)
+    sent_urls.add(article["url"])
 
-print(f"✅ Sent {new_sent} new articles")
+# Save updated list of sent URLs
+with open(SENT_FILE, "w") as f:
+    json.dump(list(sent_urls), f)
+
+print(f"✅ Sent {len(new_articles)} new articles")
