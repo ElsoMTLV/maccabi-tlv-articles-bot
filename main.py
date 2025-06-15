@@ -1,7 +1,7 @@
 import os
 import json
 from telegram import send_article
-from sources import walla, sport5, israelhayom, ynet, one
+from sources import walla, sport5, israelhayom, ynet
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -16,7 +16,7 @@ else:
 
 # Scrape all sources
 all_articles = []
-for scraper in [walla, sport5, israelhayom, ynet, one]:
+for scraper in [walla, sport5, israelhayom, ynet]:
     try:
         all_articles.extend(scraper.get_articles())
     except Exception as e:
