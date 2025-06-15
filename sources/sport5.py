@@ -9,19 +9,26 @@ def get_articles():
     soup = BeautifulSoup(res.text, "html.parser")
     articles = []
 
-    for item in soup.select(".listItem a")[:10]:  # Limit to recent items
-        link = item.get("href")
-        title = item.get_text(strip=True)
+    # Find article blocks - check divs with news item structure
+    for item in soup.select(".newsItem, .sliderItem")[:10]:  # limit for safety
+        link_tag = item.find("a")
+        title_tag = item.find("h3") or item.find("h2") or item.find("span")
 
-        if not link or not title:
+        if not link_tag or not title_tag:
             continue
 
-        if not link.startswith("http"):
-            link = "https://www.sport5.co.il" + link
+        href = link_tag.get("href")
+        title = title_tag.get_text(strip=True)
+
+        if not href or not title:
+            continue
+
+        if not href.startswith("http"):
+            href = "https://www.sport5.co.il" + href
 
         articles.append({
             "title": title,
-            "url": link
+            "url": href
         })
 
     return articles
